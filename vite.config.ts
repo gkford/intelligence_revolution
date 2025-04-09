@@ -10,7 +10,7 @@ export default defineConfig({
       '@': fileURLToPath(new URL('./src', import.meta.url))
     }
   },
-  base: '/claude-vue-template/',
+  base: '/intelligence_revolution/',
   build: {
     outDir: 'dist'
   }
