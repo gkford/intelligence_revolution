@@ -1,0 +1,167 @@
+{
+  "products": [
+    {
+      "id": "product1",
+      "type": "product",
+      "name": "Product 1",
+      "description": "Placeholder",
+      "workRequired": 5,
+      "incomeGenerated": 500,
+      "requiredDiscoveries": ["discovery1"],
+      "completionMakesAvailable": [],
+      "quiz": {
+        "question": "quiz question for Product 1",
+        "options": [
+          "correct",
+          "incorrect",
+          "incorrect",
+          "incorrect"
+        ],
+        "correctOptionIndex": 0
+      }
+    },
+    {
+      "id": "product2",
+      "type": "product",
+      "name": "Product 2",
+      "description": "Placeholder",
+      "workRequired": 10,
+      "incomeGenerated": 1000,
+      "requiredDiscoveries": ["discovery2"],
+      "completionMakesAvailable": [],
+      "quiz": {
+        "question": "quiz question for Product 2",
+        "options": [
+          "incorrect",
+          "correct",
+          "incorrect",
+          "incorrect"
+        ],
+        "correctOptionIndex": 1
+      }
+    },
+    {
+      "id": "productA",
+      "type": "product",
+      "name": "Product A",
+      "description": "Placeholder",
+      "workRequired": 15,
+      "incomeGenerated": 1500,
+      "requiredDiscoveries": ["discoveryA"],
+      "completionMakesAvailable": [],
+      "quiz": {
+        "question": "quiz question for Product A",
+        "options": [
+          "incorrect",
+          "incorrect",
+          "correct",
+          "incorrect"
+        ],
+        "correctOptionIndex": 2
+      }
+    },
+    {
+      "id": "productB",
+      "type": "product",
+      "name": "Product B",
+      "description": "Placeholder",
+      "workRequired": 20,
+      "incomeGenerated": 2000,
+      "requiredDiscoveries": ["discoveryB"],
+      "completionMakesAvailable": [],
+      "quiz": {
+        "question": "quiz question for Product B",
+        "options": [
+          "incorrect",
+          "correct",
+          "incorrect",
+          "incorrect"
+        ],
+        "correctOptionIndex": 1
+      }
+    }
+  ],
+  "discoveries": [
+    {
+      "id": "discovery1",
+      "type": "discovery",
+      "name": "Discovery 1",
+      "description": "Placeholder",
+      "workRequired": 5,
+      "creativity": 10,
+      "requiredDiscoveries": [],
+      "completionMakesAvailable": ["discovery2", "product1"],
+      "quiz": {
+        "question": "quiz question for Discovery 1",
+        "options": [
+          "correct",
+          "incorrect",
+          "incorrect",
+          "incorrect"
+        ],
+        "correctOptionIndex": 0
+      }
+    },
+    {
+      "id": "discovery2",
+      "type": "discovery",
+      "name": "Discovery 2",
+      "description": "Placeholder",
+      "workRequired": 10,
+      "creativity": 20,
+      "requiredDiscoveries": ["discovery1"],
+      "completionMakesAvailable": ["product2"],
+      "quiz": {
+        "question": "quiz question for Discovery 2",
+        "options": [
+          "incorrect",
+          "correct",
+          "incorrect",
+          "incorrect"
+        ],
+        "correctOptionIndex": 1
+      }
+    },
+    {
+      "id": "discoveryA",
+      "type": "discovery",
+      "name": "Discovery A",
+      "description": "Placeholder",
+      "workRequired": 15,
+      "creativity": 30,
+      "requiredDiscoveries": [],
+      "completionMakesAvailable": ["discoveryB", "productA"],
+      "quiz": {
+        "question": "quiz question for Discovery A",
+        "options": [
+          "incorrect",
+          "incorrect",
+          "correct",
+          "incorrect"
+        ],
+        "correctOptionIndex": 2
+      }
+    },
+    {
+      "id": "discoveryB",
+      "type": "discovery",
+      "name": "Discovery B",
+      "description": "Placeholder",
+      "workRequired": 20,
+      "creativity": 40,
+      "requiredDiscoveries": ["discoveryA"],
+      "completionMakesAvailable": ["productB"],
+      "quiz": {
+        "question": "quiz question for Discovery B",
+        "options": [
+          "incorrect",
+          "incorrect",
+          "correct",
+          "incorrect"
+        ],
+        "correctOptionIndex": 2
+      }
+    }
+  ]
+}
+
