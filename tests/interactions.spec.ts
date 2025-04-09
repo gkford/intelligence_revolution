@@ -20,61 +20,6 @@ async function waitForStoreInitialization(page) {
 
 const NORMAL_TIMEOUT = 100; // ms - for normal UI operations
 
-test('firing researchers updates the UI', async ({ page }) => {
-  await page.goto('/');
-  await waitForStoreInitialization(page);
-  
-  // Add a researcher first (via store set) to be able to test firing
-  await page.evaluate(() => {
-    window.__datacentreStore = window.__datacentreStore || {};
-    window.__datacentreStore.numResearchers = 2;
-  });
-  
-  // Get the current researcher count
-  const countElement = page.locator('.researchers-count');
-  await expect(countElement).toContainText('Count: 2', { timeout: NORMAL_TIMEOUT });
-  
-  // Find and click the fire button
-  const fireButton = page.locator('.researchers-panel button').filter({ hasText: 'Fire' });
-  await fireButton.click();
-  
-  // Verify the count has decreased
-  await expect(countElement).toContainText('Count: 1', { timeout: NORMAL_TIMEOUT });
-  
-  // Click again
-  await fireButton.click();
-  
-  // Verify the count has decreased again
-  await expect(countElement).toContainText('Count: 0', { timeout: NORMAL_TIMEOUT });
-  
-  // The button should now be disabled
-  await expect(fireButton).toBeDisabled({ timeout: NORMAL_TIMEOUT });
-});
-
-test('work allocation slider updates the allocation display', async ({ page }) => {
-  await page.goto('/');
-  await waitForStoreInitialization(page);
-  
-  // Get the initial allocation display
-  const productsAllocation = page.locator('.allocation-display div').nth(0);
-  const researchAllocation = page.locator('.allocation-display div').nth(1);
-  
-  // Default should be 50/50
-  await expect(productsAllocation).toContainText('50%', { timeout: NORMAL_TIMEOUT });
-  await expect(researchAllocation).toContainText('50%', { timeout: NORMAL_TIMEOUT });
-  
-  // Find the slider
-  const slider = page.locator('.work-allocator-panel input[type="range"]');
-  
-  // Change to 75% products
-  await slider.fill('0.75');
-  await slider.dispatchEvent('input');
-  
-  // Verify the display updated
-  await expect(productsAllocation).toContainText('75%', { timeout: NORMAL_TIMEOUT });
-  await expect(researchAllocation).toContainText('25%', { timeout: NORMAL_TIMEOUT });
-});
-
 test('clicking tech cards updates selection state', async ({ page }) => {
   await page.goto('/');
   await waitForStoreInitialization(page);

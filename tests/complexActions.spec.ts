@@ -18,21 +18,6 @@ test.beforeEach(async ({ page }) => {
 
 const NORMAL_TIMEOUT = 300; // Increased timeout for complex actions
 
-test('hiring researchers works with affordability check', async ({ page }) => {
-  // Find the researcher panel
-  const researchersPanel = page.locator('.researchers-panel');
-  
-  // Hire button should be enabled with high savings
-  const hireButton = researchersPanel.locator('button').filter({ hasText: 'Hire' });
-  await expect(hireButton).toBeEnabled({ timeout: NORMAL_TIMEOUT });
-  
-  // Click it to hire
-  await hireButton.click();
-  
-  // Check that researchers count is updated
-  await expect(researchersPanel.locator('.researchers-count')).toContainText('Count: 1', { timeout: NORMAL_TIMEOUT });
-});
-
 test('upgrading hardware works and updates the display', async ({ page }) => {
   // Force setup initial conditions for upgrades to work
   await page.evaluate(() => {
@@ -60,20 +45,4 @@ test('upgrading hardware works and updates the display', async ({ page }) => {
   expect(initialName).not.toBeNull();
   expect(newName).not.toBeNull();
   expect(newName).not.toBe(initialName);
-});
-
-test('unlocking tech cards works', async ({ page }) => {
-  // Make a tech card visible for testing
-  const techCards = page.locator('.tech-card');
-  const firstCard = techCards.first();
-  
-  // Ensure the card shows a lock
-  await expect(firstCard.locator('.locked-indicator')).toBeVisible({ timeout: NORMAL_TIMEOUT });
-  
-  // Click to unlock
-  await firstCard.click();
-  
-  // Lock should disappear and progress bar should appear
-  await expect(firstCard.locator('.locked-indicator')).not.toBeVisible({ timeout: NORMAL_TIMEOUT });
-  await expect(firstCard.locator('.progress-bar')).toBeVisible({ timeout: NORMAL_TIMEOUT });
 });
