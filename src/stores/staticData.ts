@@ -1,7 +1,19 @@
 import { ref } from 'vue';
-// Import JSON data
-import hardwareData from '../data/hardware.json' assert { type: 'json' };
-import techTreeData from '../data/techTree.json' assert { type: 'json' };
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+// Helper to get the correct directory path in ES Modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Construct absolute paths to the JSON files
+const hardwarePath = path.resolve(__dirname, '../data/hardware.json');
+const techTreePath = path.resolve(__dirname, '../data/techTree.json');
+
+// Read the files synchronously and parse the JSON
+const hardwareData = JSON.parse(fs.readFileSync(hardwarePath, 'utf-8'));
+const techTreeData = JSON.parse(fs.readFileSync(techTreePath, 'utf-8'));
 
 // Use simple refs for static data accessible across the app
 export const allHardware = ref(hardwareData);
