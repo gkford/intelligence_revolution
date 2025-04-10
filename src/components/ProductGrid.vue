@@ -2,6 +2,9 @@
   <div class="product-grid card">
     <div class="available-section">
       <h4>Available Products</h4>
+      <div v-if="showWastedWorkWarning" class="warning-message">
+        Select a product to develop.
+      </div>
       <div class="available-products">
         <TechCard
           v-for="id in techTreeStore.availableProducts"
@@ -45,8 +48,17 @@
 import { useTechTreeStore } from '../stores/techTree';
 import { findTechById } from '../stores/staticData';
 import TechCard from './TechCard.vue';
+import { useDatacentreStore } from '../stores/datacentre';
+import { computed } from 'vue';
 
 const techTreeStore = useTechTreeStore();
+const datacentreStore = useDatacentreStore();
+
+const showWastedWorkWarning = computed(() => {
+  // Only show warning if no product is selected AND there are products available to select
+  return !techTreeStore.currentlySelectedProduct &&
+         techTreeStore.availableProducts.length > 0;
+});
 </script>
 
 <style scoped>
@@ -117,5 +129,13 @@ h4 {
 .income-info {
   font-size: 0.75rem;
   color: #333;
+}
+.warning-message {
+  background-color: #fff3cd;
+  color: #856404;
+  padding: 0.5rem;
+  border-radius: 4px;
+  margin-bottom: 0.5rem;
+  border-left: 4px solid #ffeeba;
 }
 </style>

@@ -7,7 +7,8 @@ export const useDatacentreStore = defineStore('datacentre', () => {
   // --- State ---
   const numResearchers = ref(0);
   const currentHardwareId = ref('hardware1'); // Initial hardware ID
-  const proportionWorkSpentOnResearch = ref(0.5); // Initial 50/50 allocation
+  const proportionWorkSpentOnResearch = ref(1.0); // Initial 100% allocation to research
+  const manualWorkWasted = ref(false); // Flag for recent manual work waste
 
   // --- Getters (Computed Properties) ---
   // This getter doesn't depend on other stores
@@ -70,11 +71,21 @@ export const useDatacentreStore = defineStore('datacentre', () => {
     console.log(`Updated work allocation: ${Math.round((1 - proportionWorkSpentOnResearch.value) * 100)}% to Products, ${Math.round(proportionWorkSpentOnResearch.value * 100)}% to Research`);
   }
 
+  // Action to temporarily flag wasted manual work
+  function flagManualWorkWaste() {
+    manualWorkWasted.value = true;
+    // Reset the flag after a short duration (e.g., 3 seconds)
+    setTimeout(() => {
+      manualWorkWasted.value = false;
+    }, 3000);
+  }
+
   function initialize() {
     console.log("Initializing datacentre store");
     numResearchers.value = 0;
     currentHardwareId.value = 'hardware1';
-    proportionWorkSpentOnResearch.value = 0.5;
+    proportionWorkSpentOnResearch.value = 1.0; // 100% to research
+    manualWorkWasted.value = false; // Reset waste flag
   }
 
   return {
@@ -82,6 +93,7 @@ export const useDatacentreStore = defineStore('datacentre', () => {
     numResearchers,
     currentHardwareId,
     proportionWorkSpentOnResearch,
+    manualWorkWasted,
     // Getters
     currentHardwareObject,
     canAffordToHire,
@@ -92,6 +104,7 @@ export const useDatacentreStore = defineStore('datacentre', () => {
     fireResearcher,
     upgradeHardware,
     setWorkAllocation,
+    flagManualWorkWaste,
     initialize,
   };
 });

@@ -12,7 +12,6 @@
         <ResearchersPanel class="grid-researchers" />
         <HardwarePanel class="grid-hardware" />
         <WorkPanel class="grid-work" />
-        <WorkAllocatorPanel class="grid-allocator" />
       </template>
     </div>
   </div>
@@ -27,7 +26,6 @@ import FounderPanel from './FounderPanel.vue';
 import ResearchersPanel from './ResearchersPanel.vue';
 import HardwarePanel from './HardwarePanel.vue';
 import WorkPanel from './WorkPanel.vue';
-import WorkAllocatorPanel from './WorkAllocatorPanel.vue';
 
 const phaseStore = usePhaseStore();
 
@@ -61,21 +59,18 @@ h2 {
   grid-template-columns: 1fr 1fr;
   grid-template-areas:
     "researchers hardware"
-    "work work"
-    "allocator allocator";
+    "work work";
 }
 .lab-layout .grid-researchers { grid-area: researchers; }
 .lab-layout .grid-hardware { grid-area: hardware; }
 .lab-layout .grid-work { grid-area: work; }
-.lab-layout .grid-allocator { grid-area: allocator; }
 
 /* Startup Phase Layout */
 .datacentre-content.startup-layout {
-   grid-template-columns: 1fr; /* Single column */
+   grid-template-columns: 1fr 1fr; /* Two columns like lab layout */
    grid-template-areas:
-     "founder"
-     "hardware"
-     "work";
+     "founder hardware"
+     "work work";
 }
 .startup-layout .grid-founder { grid-area: founder; }
 .startup-layout .grid-hardware { grid-area: hardware; }

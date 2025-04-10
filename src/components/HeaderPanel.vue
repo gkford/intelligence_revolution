@@ -1,6 +1,6 @@
 <template>
   <div class="header-panel">
-    <h1>March of Mind</h1>
+    <h1>Intelligence Revolution</h1>
     <div class="date">{{ timeStore.displayDate }}</div>
   </div>
 </template>

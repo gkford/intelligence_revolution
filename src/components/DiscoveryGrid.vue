@@ -2,6 +2,9 @@
   <div class="discovery-grid card">
     <div class="available-section">
       <h4>Available Discoveries</h4>
+      <div v-if="showWastedWorkWarning" class="warning-message">
+        Select a discovery to research.
+      </div>
       <div class="available-discoveries">
         <TechCard
           v-for="id in techTreeStore.availableDiscoveries"
@@ -39,8 +42,17 @@
 import { useTechTreeStore } from '../stores/techTree';
 import { findTechById } from '../stores/staticData';
 import TechCard from './TechCard.vue';
+import { useDatacentreStore } from '../stores/datacentre';
+import { computed } from 'vue';
 
 const techTreeStore = useTechTreeStore();
+const datacentreStore = useDatacentreStore();
+
+const showWastedWorkWarning = computed(() => {
+  // Only show warning if no discovery is selected AND there are discoveries available to select
+  return !techTreeStore.currentlySelectedDiscovery &&
+         techTreeStore.availableDiscoveries.length > 0;
+});
 </script>
 
 <style scoped>
@@ -103,5 +115,13 @@ h4 {
   background-color: #eef6ff;
   border: 1px solid #b3d4fc;
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+.warning-message {
+  background-color: #fff3cd;
+  color: #856404;
+  padding: 0.5rem;
+  border-radius: 4px;
+  margin-bottom: 0.5rem;
+  border-left: 4px solid #ffeeba;
 }
 </style>

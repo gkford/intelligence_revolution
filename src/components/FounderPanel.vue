@@ -2,24 +2,27 @@
   <div class="founder-panel panel-card">
     <h3>Founder Actions (Startup Phase)</h3>
     <p>Manually drive initial breakthroughs by applying focused effort to discoveries.</p>
-    <div v-if="techTreeStore.currentlySelectedDiscovery">
-      <p>Applying effort to: <strong>{{ selectedDiscoveryName }}</strong></p>
-      <button @click="doManualResearch" :disabled="!canDoResearch">
-        Focus Effort (Applies {{ manualWorkPerClick.toFixed(2) }} Work)
-      </button>
-      <p v-if="!canDoResearch" class="error-message">
-        Cannot apply effort: No discovery selected.
+    <div v-if="canDoResearch">
+      <p>
+        <span v-if="techTreeStore.currentlySelectedDiscovery">
+          Discovery: <strong>{{ selectedDiscoveryName }}</strong>
+        </span>
+        <span v-if="techTreeStore.currentlySelectedDiscovery && techTreeStore.currentlySelectedProduct"> | </span>
+        <span v-if="techTreeStore.currentlySelectedProduct">
+          Product: <strong>{{ selectedProductName }}</strong>
+        </span>
       </p>
+      <button @click="doStartupWork" :disabled="!canDoResearch">
+        Focus Effort (Applies 1 Work)
+      </button>
     </div>
     <div v-else>
-      <p class="info-message">Select an available Discovery to begin.</p>
+      <p class="info-message">Select an available Discovery or Product to begin.</p>
       <button disabled>Focus Effort</button>
     </div>
 
     <div class="manual-work-info">
-      Work per Click ≈ FLOPS<sup>0.7</sup> &times; 1<sup>0.3</sup> (Base Effort)
-      <br/>
-      Current FLOPS: {{ resourcesStore.flopsRate }}
+      Each click applies 1 unit of work distributed by allocation ratio
     </div>
   </div>
 </template>
@@ -29,11 +32,15 @@ import { computed } from 'vue';
 import { useTechTreeStore } from '../stores/techTree';
 import { useResourcesStore } from '../stores/resources';
 import { findTechById } from '../stores/staticData';
+import { useDatacentreStore } from '../stores/datacentre'; // Import datacentre store
 
 const techTreeStore = useTechTreeStore();
 const resourcesStore = useResourcesStore();
+const datacentreStore = useDatacentreStore();
 
-const canDoResearch = computed(() => !!techTreeStore.currentlySelectedDiscovery);
+const canDoResearch = computed(() =>
+  !!techTreeStore.currentlySelectedDiscovery || !!techTreeStore.currentlySelectedProduct
+);
 
 const selectedDiscoveryName = computed(() => {
   if (!techTreeStore.currentlySelectedDiscovery) return 'None';
@@ -41,29 +48,51 @@ const selectedDiscoveryName = computed(() => {
   return tech?.name ?? 'Unknown';
 });
 
-// Calculate how much work one manual click generates
-const manualWorkPerClick = computed(() => {
-  // Design Decision: In 'startup', manual effort applies directly to discoveries.
-  // We use current FLOPS, but assume a fixed "creativity input" of 1 per click.
-  const flops = resourcesStore.flopsRate;
-  const baseCreativityPerClick = 1; // Represents one unit of focused effort/creativity input.
-  // Formula: Work = FLOPS^0.7 * Creativity^0.3
-  return Math.pow(flops, 0.7) * Math.pow(baseCreativityPerClick, 0.3);
+const selectedProductName = computed(() => {
+  if (!techTreeStore.currentlySelectedProduct) return 'None';
+  const tech = findTechById(techTreeStore.currentlySelectedProduct);
+  return tech?.name ?? 'Unknown';
 });
 
-function doManualResearch() {
-  if (!canDoResearch.value || !techTreeStore.currentlySelectedDiscovery) {
-    console.warn("Attempted manual research without a selected discovery.");
+function doStartupWork() {
+  if (!canDoResearch.value) {
+    console.warn("Attempted manual work without any selection.");
     return;
   }
 
-  const workAmount = manualWorkPerClick.value;
-  const discoveryId = techTreeStore.currentlySelectedDiscovery;
+  let wasWorkWasted = false; // Track if any waste occurred in this click
+  const totalWorkAmount = 1;
+  const researchProportion = datacentreStore.proportionWorkSpentOnResearch;
+  const productProportion = 1 - researchProportion;
 
-  console.log(`Applying ${workAmount.toFixed(2)} manual work to ${discoveryId}`);
-  techTreeStore.progressWork(discoveryId, workAmount);
+  if (techTreeStore.currentlySelectedDiscovery) {
+    const discoveryWorkAmount = totalWorkAmount * researchProportion;
+    if (discoveryWorkAmount > 0) {
+      console.log(`Applying ${discoveryWorkAmount.toFixed(2)} manual work to discovery ${techTreeStore.currentlySelectedDiscovery}`);
+      techTreeStore.progressWork(techTreeStore.currentlySelectedDiscovery, discoveryWorkAmount);
+    }
+  } else if (researchProportion > 0) {
+    console.log(`Wasting ${(totalWorkAmount * researchProportion).toFixed(2)} work allocated to research - no discovery selected`);
+    wasWorkWasted = true;
+  }
+
+  if (techTreeStore.currentlySelectedProduct) {
+    const productWorkAmount = totalWorkAmount * productProportion;
+    if (productWorkAmount > 0) {
+      console.log(`Applying ${productWorkAmount.toFixed(2)} manual work to product ${techTreeStore.currentlySelectedProduct}`);
+      techTreeStore.progressWork(techTreeStore.currentlySelectedProduct, productWorkAmount);
+    }
+  } else if (productProportion > 0) {
+    console.log(`Wasting ${(totalWorkAmount * productProportion).toFixed(2)} work allocated to products - no product selected`);
+    wasWorkWasted = true;
+  }
 
   // Optional: Add visual feedback here (e.g., button flash)
+
+  // If any work was wasted during this click, flag it in the store
+  if (wasWorkWasted) {
+    datacentreStore.flagManualWorkWaste();
+  }
 }
 </script>
 

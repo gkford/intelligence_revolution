@@ -3,20 +3,10 @@
     <HeaderPanel />
     
     <main>
-
-      <div class="main-content">
-        <div class="left-column">
-          <ResourcePanel />
-          <DatacentrePanel />
-        </div>
-        <div class="right-column">
-          <TechnologyPanel />
-        </div>
-      </div>
+      <GamePanel />
       
       <!-- Debug Panel with advanced actions - will be removed later -->
       <DebugPanel />
-      
     </main>
     
     <footer>
@@ -36,9 +26,7 @@
 import { computed, onMounted } from 'vue';
 import { useVersion } from './composables/useVersion';
 import HeaderPanel from './components/HeaderPanel.vue';
-import ResourcePanel from './components/ResourcePanel.vue';
-import DatacentrePanel from './components/DatacentrePanel.vue';
-import TechnologyPanel from './components/TechnologyPanel.vue';
+import GamePanel from './components/GamePanel.vue';
 import DebugPanel from './components/DebugPanel.vue';
 import QuizModal from './components/QuizModal.vue';
 import InfoPopup from './components/InfoPopup.vue';
@@ -84,26 +72,6 @@ html, body {
 
 main {
   margin-bottom: 50px;
-}
-
-.main-content {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 20px;
-  margin: 20px 0;
-}
-
-.left-column {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
-
-.right-column {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-  height: 100%;
 }
 
 .debug-section {

@@ -1,6 +1,9 @@
 <template>
   <div class="technology-panel">
     <h2>Technology</h2>
+    <div class="work-allocator-container">
+      <WorkAllocatorPanel />
+    </div>
     <div class="tech-container">
       <div class="products-section">
         <h3>Products</h3>
@@ -17,6 +20,7 @@
 <script setup lang="ts">
 import ProductGrid from './ProductGrid.vue';
 import DiscoveryGrid from './DiscoveryGrid.vue';
+import WorkAllocatorPanel from './WorkAllocatorPanel.vue';
 </script>
 
 <style scoped>
@@ -27,7 +31,12 @@ import DiscoveryGrid from './DiscoveryGrid.vue';
   margin-bottom: 1rem;
   height: 100%;
   display: flex;
+  min-height: 1100px; /* Add minimum height */
   flex-direction: column;
+}
+
+.work-allocator-container {
+  margin-bottom: 1rem;
 }
 
 h2 {
@@ -40,6 +49,7 @@ h2 {
   grid-template-columns: 1fr 1fr;
   grid-gap: 1rem;
   flex-grow: 1;
+  min-height: 0;
 }
 
 .products-section,
@@ -47,7 +57,6 @@ h2 {
   display: flex;
   flex-direction: column;
   min-height: 0; /* allow children to shrink */
-  flex-grow: 1; /* Add this to match discoveries-section */
 }
 
 .products-section > *:last-child {
@@ -57,17 +66,11 @@ h2 {
   min-height: 0;
 }
 
-.products-section .product-grid {
+.products-section > *:last-child {
   flex-grow: 1;
   display: flex;
   flex-direction: column;
   min-height: 0;
-  overflow-y: auto;
-}
-
-.discoveries-section {
-  /* Make the discovery grid fill vertical space */
-  flex-grow: 1;
 }
 
 .discoveries-section > *:last-child {
@@ -75,14 +78,6 @@ h2 {
   display: flex;
   flex-direction: column;
   min-height: 0;
-}
-
-.discoveries-section .discovery-grid {
-  flex-grow: 1;
-  display: flex;
-  flex-direction: column;
-  min-height: 0;
-  overflow-y: auto;
 }
 
 h3 {
