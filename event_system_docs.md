@@ -1,8 +1,8 @@
-# Documentation: Events and Phases System ("March of Mind")
+# Documentation: Events and Phases System ("Intelligence Revolution")
 
 ## Introduction
 
-This document describes the Event Detection, Popup, and Phase Management systems implemented in "March of Mind". These systems work together to create distinct stages of gameplay, triggered by specific player achievements, and communicated via informational popups. The initial implementation focuses on transitioning from a manual 'startup' phase to an automated 'lab' phase.
+This document describes the Event Detection, Popup, and Phase Management systems implemented in "Intelligence Revolution". These systems work together to create distinct stages of gameplay, triggered by specific player achievements, and communicated via informational popups. The initial implementation focuses on transitioning from a manual 'startup' phase to an automated 'lab' phase.
 
 ## Core Components
 
@@ -13,40 +13,40 @@ This document describes the Event Detection, Popup, and Phase Management systems
 
 ## Phase Management System
 
-* **Store**: `usePhaseStore` located in `src/stores/phase.ts`.
-* **State**:
-  * `currentPhase: Ref<GamePhase>`: Holds the current active phase (e.g., `'startup'`, `'lab'`). `GamePhase` is a type defined in `src/types/index.ts`.
-* **Actions**:
-  * `setPhase(newPhase: GamePhase)`: Transitions the game to the specified phase. It includes logging and prevents redundant transitions to the same phase.
-  * `initialize()`: Resets the phase to the default starting phase (`'startup'`).
-* **Usage**:
-  * Check the current phase: Access `phaseStore.currentPhase` (reactive).
-  * Transition phase: Call `phaseStore.setPhase('newPhaseName')`.
-  * Conditional Rendering: Use `v-if="phaseStore.currentPhase === 'phaseName'"` in Vue components to show/hide UI elements based on the phase (e.g., swapping `FounderPanel` for `ResearchersPanel`).
+- **Store**: `usePhaseStore` located in `src/stores/phase.ts`.
+- **State**:
+  - `currentPhase: Ref<GamePhase>`: Holds the current active phase (e.g., `'startup'`, `'lab'`). `GamePhase` is a type defined in `src/types/index.ts`.
+- **Actions**:
+  - `setPhase(newPhase: GamePhase)`: Transitions the game to the specified phase. It includes logging and prevents redundant transitions to the same phase.
+  - `initialize()`: Resets the phase to the default starting phase (`'startup'`).
+- **Usage**:
+  - Check the current phase: Access `phaseStore.currentPhase` (reactive).
+  - Transition phase: Call `phaseStore.setPhase('newPhaseName')`.
+  - Conditional Rendering: Use `v-if="phaseStore.currentPhase === 'phaseName'"` in Vue components to show/hide UI elements based on the phase (e.g., swapping `FounderPanel` for `ResearchersPanel`).
 
 ## Event Detection System
 
-* **Concept**: Identifies when specific, significant game milestones are reached (e.g., completing the first discovery that enables product development, reaching a certain resource threshold).
-* **Current Implementation**: Event detection is currently *decentralized*. The logic resides within the Pinia store action most closely related to the event.
-  * **Example (First Product-Unlocking Discovery Completion)**: The check occurs inside the `completeWork` action within `src/stores/techTree.ts`. It verifies if the completed tech is a `discovery`, if this is the first such discovery completion (`hasCompletedFirstProductUnlockingDiscovery` flag), and if that discovery's `completionMakesAvailable` list includes at least one item of type `product`.
-* **Triggering Actions**: When an event condition is met, the detection logic typically:
+- **Concept**: Identifies when specific, significant game milestones are reached (e.g., completing the first discovery that enables product development, reaching a certain resource threshold).
+- **Current Implementation**: Event detection is currently _decentralized_. The logic resides within the Pinia store action most closely related to the event.
+  - **Example (First Product-Unlocking Discovery Completion)**: The check occurs inside the `completeWork` action within `src/stores/techTree.ts`. It verifies if the completed tech is a `discovery`, if this is the first such discovery completion (`hasCompletedFirstProductUnlockingDiscovery` flag), and if that discovery's `completionMakesAvailable` list includes at least one item of type `product`.
+- **Triggering Actions**: When an event condition is met, the detection logic typically:
   1. Sets a flag (e.g., `hasCompletedFirstProductUnlockingDiscovery`) to prevent the event from firing repeatedly.
   2. Calls `uiStore.showPopup()` to inform the player.
   3. Calls `phaseStore.setPhase()` if the event triggers a phase transition.
 
 ## Popup System
 
-* **Store**: `useUiStore` located in `src/stores/ui.ts`.
-* **State**:
-  * `isPopupVisible: Ref<boolean>`: Controls the visibility of the generic info popup.
-  * `popupTitle: Ref<string | null>`: Title displayed in the popup.
-  * `popupMessage: Ref<string | null>`: Message body displayed in the popup.
-* **Actions**:
-  * `showPopup(title: string, message: string)`: Makes the popup visible, sets its content, and calls `timeStore.pauseGame()`.
-  * `hidePopup()`: Hides the popup, clears its content, and calls `timeStore.resumeGame()`.
-* **Component**: `src/components/InfoPopup.vue` renders the popup based on the `uiStore` state and provides a "Close" button that calls `hidePopup()`.
-* **Integration**: `<InfoPopup />` is included globally in `src/App.vue`.
-* **Game Pause**: The popup system automatically pauses the game via `useTimeStore` when shown and resumes it when hidden, ensuring the player doesn't miss anything while the popup is active. (Note: The Quiz modal uses the same pause/resume mechanism).
+- **Store**: `useUiStore` located in `src/stores/ui.ts`.
+- **State**:
+  - `isPopupVisible: Ref<boolean>`: Controls the visibility of the generic info popup.
+  - `popupTitle: Ref<string | null>`: Title displayed in the popup.
+  - `popupMessage: Ref<string | null>`: Message body displayed in the popup.
+- **Actions**:
+  - `showPopup(title: string, message: string)`: Makes the popup visible, sets its content, and calls `timeStore.pauseGame()`.
+  - `hidePopup()`: Hides the popup, clears its content, and calls `timeStore.resumeGame()`.
+- **Component**: `src/components/InfoPopup.vue` renders the popup based on the `uiStore` state and provides a "Close" button that calls `hidePopup()`.
+- **Integration**: `<InfoPopup />` is included globally in `src/App.vue`.
+- **Game Pause**: The popup system automatically pauses the game via `useTimeStore` when shown and resumes it when hidden, ensuring the player doesn't miss anything while the popup is active. (Note: The Quiz modal uses the same pause/resume mechanism).
 
 ## System Interaction Flow (Startup -> Lab Example)
 
@@ -111,27 +111,34 @@ sequenceDiagram
 
 ```typescript
 // Inside resourcesStore actions:
-let fundingSecuredEventTriggered = false; // Add flag at store scope
+let fundingSecuredEventTriggered = false // Add flag at store scope
 
 function addSavings(amount: number) {
-  const oldSavings = savingsAmount.value;
-  savingsAmount.value += amount;
-  
+  const oldSavings = savingsAmount.value
+  savingsAmount.value += amount
+
   // Check for event AFTER adding savings
-  if (!fundingSecuredEventTriggered && oldSavings < 100000 && savingsAmount.value >= 100000) {
-     fundingSecuredEventTriggered = true;
-     const uiStore = useUiStore(); // Get instance
-     uiStore.showPopup("Funding Secured!", "You've reached $100,000! New opportunities await.");
-     // This event doesn't trigger a phase change in this example.
-     console.log("EVENT: Funding Secured triggered.");
+  if (
+    !fundingSecuredEventTriggered &&
+    oldSavings < 100000 &&
+    savingsAmount.value >= 100000
+  ) {
+    fundingSecuredEventTriggered = true
+    const uiStore = useUiStore() // Get instance
+    uiStore.showPopup(
+      'Funding Secured!',
+      "You've reached $100,000! New opportunities await."
+    )
+    // This event doesn't trigger a phase change in this example.
+    console.log('EVENT: Funding Secured triggered.')
   }
 }
 
 // Remember to reset the flag in initialize()
 function initialize() {
-    // ... reset other state
-    savingsAmount.value = 0;
-    fundingSecuredEventTriggered = false;
+  // ... reset other state
+  savingsAmount.value = 0
+  fundingSecuredEventTriggered = false
 }
 ```
 

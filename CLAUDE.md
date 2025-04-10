@@ -1,9 +1,11 @@
 # CLAUDE.md - Project Guidelines
 
 ## Project Overview
-March of Mind - A cookie clicker style game where you run a company and balance R&D with products, hardware capital and talent. Built with Vue.js, TypeScript, Pinia, and includes Playwright testing and GitHub Actions CI/CD setup.
+
+Intelligence Revolution - A cookie clicker style game where you run a company and balance R&D with products, hardware capital and talent. Built with Vue.js, TypeScript, Pinia, and includes Playwright testing and GitHub Actions CI/CD setup.
 
 ## Current Features
+
 - Vue 3 with Composition API
 - TypeScript support
 - Pinia state management
@@ -23,11 +25,13 @@ March of Mind - A cookie clicker style game where you run a company and balance 
 ## Development Process (STRICT REQUIREMENTS)
 
 1. **Feature Development**
+
    - Implement the feature in the simplest and cleanest way.
    - Implement a simple and clean test.
    - ALWAYS remove old code if it is no longer required.
 
 2. **Testing Requirements**
+
    - ALL code changes MUST have corresponding tests
    - Run the full test suite with `npm run test` prior to every commit
    - Tests MUST pass before any commit
@@ -37,7 +41,7 @@ March of Mind - A cookie clicker style game where you run a company and balance 
 
 3. **Pre-Commit Checklist**
    BEFORE git commit, always do ALL of the following:
-   
+
    - Review added & related code, and make any improvements before committing. A small codebase is a good codebase.
    - `npm run typecheck && npm run lint && npm run test`
    - Before reporting back to the user:
@@ -61,7 +65,7 @@ March of Mind - A cookie clicker style game where you run a company and balance 
    - `gh run watch <run-id>`
    - Verify the new version is live by requesting app-base/version.json
    - If successful, link the user to the working application.
-   
+
 5. **Deployment Configuration**
    - `static.yml` - GitHub's standard Pages workflow (configured for our Vue.js app)
    - GitHub Pages must be enabled in repository Settings > Pages
@@ -70,12 +74,14 @@ March of Mind - A cookie clicker style game where you run a company and balance 
 ## Tech Stack
 
 ### Frontend
+
 - Vue.js 3 with Composition API
 - TypeScript 5+
 - Pinia for state management
 - Modern CSS with flexbox/grid layouts
 
 ### Development & Deployment
+
 - Vite build system
 - ESLint for code quality
 - Playwright for end-to-end testing
@@ -85,6 +91,7 @@ March of Mind - A cookie clicker style game where you run a company and balance 
 ## Development Commands
 
 ### Project Commands
+
 - `npm run build` - Build production-ready assets
 - `npm run typecheck` - Check types are valid.
 - `npm run lint` - Run ESLint code quality checks
@@ -92,6 +99,7 @@ March of Mind - A cookie clicker style game where you run a company and balance 
 - Do NOT use `npm run dev` or `npm run preview` - you can't view the output. Use comprehensive tests instead.
 
 ### Deployment Monitoring Commands
+
 - `gh run list` - Check GitHub Actions workflow status
 - `gh run watch` - View summary of a specific workflow run
 - `gh run view <run-id> --log-failed` - View only the failed steps in a workflow run
@@ -100,12 +108,14 @@ March of Mind - A cookie clicker style game where you run a company and balance 
 ## Project Architecture
 
 ### Core Organization
+
 - `.github/workflows/static.yml` - GitHub workflow for Pages deployment
 - `package.json` - Project dependencies and scripts
 - `src/main.ts` - Application entry point
 - `src/App.vue` - Root Vue component
 
 ### Configuration Files
+
 - `eslint.config.js` - ESLint configuration (using the modern flat config format)
 - `tsconfig.json` - TypeScript project configuration
 - `tsconfig.app.json` - TypeScript configuration for the Vue application
@@ -115,9 +125,11 @@ March of Mind - A cookie clicker style game where you run a company and balance 
 - `env.d.ts` - TypeScript declarations for Vite environment
 
 ### State Management
+
 - `src/stores/app.ts` - Pinia store for application state
 
 ### Composables
+
 - `src/composables/useVersion.ts` - Reactive version information
 
 ## Version History
@@ -125,7 +137,7 @@ March of Mind - A cookie clicker style game where you run a company and balance 
 Always update both this file `CLAUDE.md` AND `package.json`.
 
 - 0.1.0 - Initial project setup with Vue 3, TypeScript, Pinia, and testing infrastructure
-- 0.2.0 - Renamed project to March of Mind, updated base path, added simple counter with "unrealistically earn money" button
+- 0.2.0 - Renamed project to Intelligence Revolution, updated base path, added simple counter with "unrealistically earn money" button
 - 0.3.0 - Created static data files with hardware and tech tree, implemented staticData store with helper functions, added tests for static data
 - 0.4.0 - Created the four main stores (resources, datacentre, techTree, time) with state and simple getters, implemented all UI components with initial values displayed but no interactions yet
 - 0.5.0 - Implemented cross-store getters (incomeRate, workRate, canAffordToHire, etc.) and simple interactions (firing researchers, adjusting work allocation slider, selecting tech cards)

@@ -2,7 +2,7 @@
 
 ## Overview
 
-This document provides step-by-step instructions for implementing an event detection system, an informational popup system, and a game phase management system in the "March of Mind" game. The initial implementation focuses on transitioning the game from a "startup" phase (manual work generation) to a "lab" phase (automatic work generation) upon the completion of the first product.
+This document provides step-by-step instructions for implementing an event detection system, an informational popup system, and a game phase management system in the "Intelligence Revolution" game. The initial implementation focuses on transitioning the game from a "startup" phase (manual work generation) to a "lab" phase (automatic work generation) upon the completion of the first product.
 
 Follow these instructions carefully. Do not deviate without consultation.
 
@@ -10,19 +10,19 @@ Follow these instructions carefully. Do not deviate without consultation.
 
 **New Files:**
 
-* `src/stores/phase.ts` (Phase Management Store)
-* `src/components/InfoPopup.vue` (Popup Component)
-* `src/components/FounderPanel.vue` (Panel for Startup Phase)
+- `src/stores/phase.ts` (Phase Management Store)
+- `src/components/InfoPopup.vue` (Popup Component)
+- `src/components/FounderPanel.vue` (Panel for Startup Phase)
 
 **Modified Files:**
 
-* `src/stores/time.ts` (Add pause/resume functionality, modify tick logic)
-* `src/stores/ui.ts` (Add popup state and controls)
-* `src/stores/techTree.ts` (Trigger event on first product completion)
-* `src/stores/resources.ts` (Minor clarification if needed, potentially new getter for manual work calculation)
-* `src/App.vue` (Integrate Popup Component)
-* `src/components/DatacentrePanel.vue` (Conditional rendering of Founder/Researcher panels)
-* `src/types/index.ts` (Add new types/interfaces)
+- `src/stores/time.ts` (Add pause/resume functionality, modify tick logic)
+- `src/stores/ui.ts` (Add popup state and controls)
+- `src/stores/techTree.ts` (Trigger event on first product completion)
+- `src/stores/resources.ts` (Minor clarification if needed, potentially new getter for manual work calculation)
+- `src/App.vue` (Integrate Popup Component)
+- `src/components/DatacentrePanel.vue` (Conditional rendering of Founder/Researcher panels)
+- `src/types/index.ts` (Add new types/interfaces)
 
 ## Step-by-Step Implementation
 
@@ -35,29 +35,29 @@ Follow these instructions carefully. Do not deviate without consultation.
     /**
      * Represents the major phases of the game.
      */
-    export type GamePhase = 'startup' | 'lab'; // Add more phases later as needed
+    export type GamePhase = 'startup' | 'lab' // Add more phases later as needed
 
     // Add the following to the declare global window interface for testing
     declare global {
       interface Window {
         // ... existing declarations
         __phaseStore?: {
-          currentPhase: GamePhase;
-          setPhase: (phase: GamePhase) => void;
-        };
+          currentPhase: GamePhase
+          setPhase: (phase: GamePhase) => void
+        }
         __uiStore?: {
           // ... existing declarations
-          isPopupVisible: boolean;
-          popupTitle: string | null;
-          popupMessage: string | null;
-          showPopup: (title: string, message: string) => void;
-          hidePopup: () => void;
-        };
-         __timeStore?: {
+          isPopupVisible: boolean
+          popupTitle: string | null
+          popupMessage: string | null
+          showPopup: (title: string, message: string) => void
+          hidePopup: () => void
+        }
+        __timeStore?: {
           // ... existing declarations
-          pauseGame: () => void;
-          resumeGame: () => void;
-        };
+          pauseGame: () => void
+          resumeGame: () => void
+        }
       }
     }
     ```
@@ -68,42 +68,43 @@ Follow these instructions carefully. Do not deviate without consultation.
 2.  Add the following code:
 
     ```typescript
-    import { defineStore } from 'pinia';
-    import { ref } from 'vue';
-    import type { GamePhase } from '../types';
+    import { defineStore } from 'pinia'
+    import { ref } from 'vue'
+    import type { GamePhase } from '../types'
 
     export const usePhaseStore = defineStore('phase', () => {
       // --- State ---
-      const currentPhase = ref<GamePhase>('startup'); // Start in the 'startup' phase
+      const currentPhase = ref<GamePhase>('startup') // Start in the 'startup' phase
 
       // --- Actions ---
       function setPhase(newPhase: GamePhase) {
         if (currentPhase.value !== newPhase) {
-          console.log(`Transitioning from phase '${currentPhase.value}' to '${newPhase}'`);
-          currentPhase.value = newPhase;
+          console.log(
+            `Transitioning from phase '${currentPhase.value}' to '${newPhase}'`
+          )
+          currentPhase.value = newPhase
           // Potential future hook: emit('phaseChanged', newPhase);
         }
       }
 
       function initialize() {
-        console.log("Initializing phase store");
-        currentPhase.value = 'startup';
+        console.log('Initializing phase store')
+        currentPhase.value = 'startup'
       }
 
       // Make store accessible for tests
       if (typeof window !== 'undefined') {
         window.__phaseStore = {
           currentPhase: currentPhase.value, // Expose value directly for reads
-          setPhase // Expose action
-        };
+          setPhase, // Expose action
+        }
         // Watch for changes to update the global state for tests
         watch(currentPhase, (newPhase) => {
           if (window.__phaseStore) {
-             window.__phaseStore.currentPhase = newPhase;
+            window.__phaseStore.currentPhase = newPhase
           }
-        });
+        })
       }
-
 
       return {
         // State
@@ -111,19 +112,20 @@ Follow these instructions carefully. Do not deviate without consultation.
         // Actions
         setPhase,
         initialize,
-      };
-    });
+      }
+    })
     ```
+
 3.  Ensure this store is imported and initialized in `src/main.ts` similar to other stores, and add it to the global exposure section for tests.
 
     ```typescript
     // src/main.ts (additions)
-    import { usePhaseStore } from './stores/phase';
+    import { usePhaseStore } from './stores/phase'
     // ... other imports
 
     // Inside the setTimeout for global exposure:
-    const phaseStore = usePhaseStore();
-    window.__phaseStore = phaseStore; // Expose for tests
+    const phaseStore = usePhaseStore()
+    window.__phaseStore = phaseStore // Expose for tests
     ```
 
 **Step 3: Add Pause/Resume to Time Store**
@@ -131,80 +133,107 @@ Follow these instructions carefully. Do not deviate without consultation.
 1.  Open `src/stores/time.ts`.
 2.  Import `usePhaseStore`.
     ```typescript
-    import { usePhaseStore } from './phase';
+    import { usePhaseStore } from './phase'
     ```
 3.  Add new actions `pauseGame` and `resumeGame`.
 4.  Modify `startGame`, `stopGame`, and `tick` to handle the pause state correctly.
-5.  Modify `performTick` to only apply automatic work if *not* in the 'startup' phase.
+5.  Modify `performTick` to only apply automatic work if _not_ in the 'startup' phase.
 
     ```typescript
     // src/stores/time.ts (modifications)
-    import { defineStore } from 'pinia';
-    import { ref, computed } from 'vue';
-    import { START_YEAR, END_YEAR, GAME_DURATION_MINUTES } from './staticData';
-    import { useResourcesStore } from './resources';
-    import { useDatacentreStore } from './datacentre';
-    import { useTechTreeStore } from './techTree';
-    import { usePhaseStore } from './phase'; // Import Phase Store
+    import { defineStore } from 'pinia'
+    import { ref, computed } from 'vue'
+    import { START_YEAR, END_YEAR, GAME_DURATION_MINUTES } from './staticData'
+    import { useResourcesStore } from './resources'
+    import { useDatacentreStore } from './datacentre'
+    import { useTechTreeStore } from './techTree'
+    import { usePhaseStore } from './phase' // Import Phase Store
 
     // ... (constants remain the same)
 
     export const useTimeStore = defineStore('time', () => {
       // --- State ---
-      const currentYear = ref(START_YEAR);
-      const currentMonthIndex = ref(0); // 0 = January, ..., 11 = December
-      const isRunning = ref(false); // Master running state (game on/off)
-      const isPaused = ref(false); // For temporary pauses (popups, menus)
-      const lastTickTimestamp = ref<number | null>(null);
-      const timerId = ref<number | null>(null);
+      const currentYear = ref(START_YEAR)
+      const currentMonthIndex = ref(0) // 0 = January, ..., 11 = December
+      const isRunning = ref(false) // Master running state (game on/off)
+      const isPaused = ref(false) // For temporary pauses (popups, menus)
+      const lastTickTimestamp = ref<number | null>(null)
+      const timerId = ref<number | null>(null)
 
       // --- Getters ---
-      const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-      const displayDate = computed(() => `${months[currentMonthIndex.value]} ${currentYear.value}`);
+      const months = [
+        'January',
+        'February',
+        'March',
+        'April',
+        'May',
+        'June',
+        'July',
+        'August',
+        'September',
+        'October',
+        'November',
+        'December',
+      ]
+      const displayDate = computed(
+        () => `${months[currentMonthIndex.value]} ${currentYear.value}`
+      )
 
       // --- Actions ---
       function performTick(deltaTimeSeconds: number) {
         // Exit if game is stopped OR paused
-        if (!isRunning.value || isPaused.value) return;
+        if (!isRunning.value || isPaused.value) return
 
-        const resourcesStore = useResourcesStore();
-        const datacentreStore = useDatacentreStore();
-        const techTreeStore = useTechTreeStore();
-        const phaseStore = usePhaseStore(); // Get phase store instance
+        const resourcesStore = useResourcesStore()
+        const datacentreStore = useDatacentreStore()
+        const techTreeStore = useTechTreeStore()
+        const phaseStore = usePhaseStore() // Get phase store instance
 
         // 1. Update Game Time (Always happens if running and not paused)
-        const monthsToAdd = deltaTimeSeconds * MONTHS_PER_SECOND;
-        const newMonthIndex = currentMonthIndex.value + monthsToAdd;
-        currentYear.value += Math.floor(newMonthIndex / 12);
-        currentMonthIndex.value = Math.floor(newMonthIndex % 12);
+        const monthsToAdd = deltaTimeSeconds * MONTHS_PER_SECOND
+        const newMonthIndex = currentMonthIndex.value + monthsToAdd
+        currentYear.value += Math.floor(newMonthIndex / 12)
+        currentMonthIndex.value = Math.floor(newMonthIndex % 12)
 
         if (currentYear.value > END_YEAR) {
-          stopGame();
-          console.log("GAME OVER - Reached end year");
-          alert("Game Over!");
-          return;
+          stopGame()
+          console.log('GAME OVER - Reached end year')
+          alert('Game Over!')
+          return
         }
 
         // 2. Update Resources (Savings and Thoughts)
-        const currentIncomeRate = resourcesStore.incomeRate;
-        resourcesStore.addSavings(currentIncomeRate * deltaTimeSeconds);
+        const currentIncomeRate = resourcesStore.incomeRate
+        resourcesStore.addSavings(currentIncomeRate * deltaTimeSeconds)
         // Note: 'Thoughts' might be renamed or repurposed later.
         // Currently tied to workRate, which might be 0 in startup phase.
         // Let's keep adding based on calculated workRate for now.
-        resourcesStore.addThoughts(resourcesStore.workRate * deltaTimeSeconds);
+        resourcesStore.addThoughts(resourcesStore.workRate * deltaTimeSeconds)
 
         // 3. Apply *Automatic* Work (Only if NOT in startup phase)
         if (phaseStore.currentPhase !== 'startup') {
-          const currentWorkRate = resourcesStore.workRate; // Cache for tick
-          const proportionResearch = datacentreStore.proportionWorkSpentOnResearch;
-          const workForProducts = currentWorkRate * (1 - proportionResearch) * deltaTimeSeconds;
-          const workForDiscoveries = currentWorkRate * proportionResearch * deltaTimeSeconds;
+          const currentWorkRate = resourcesStore.workRate // Cache for tick
+          const proportionResearch =
+            datacentreStore.proportionWorkSpentOnResearch
+          const workForProducts =
+            currentWorkRate * (1 - proportionResearch) * deltaTimeSeconds
+          const workForDiscoveries =
+            currentWorkRate * proportionResearch * deltaTimeSeconds
 
           if (techTreeStore.currentlySelectedProduct && workForProducts > 0) {
-            techTreeStore.progressWork(techTreeStore.currentlySelectedProduct, workForProducts);
+            techTreeStore.progressWork(
+              techTreeStore.currentlySelectedProduct,
+              workForProducts
+            )
           }
-          if (techTreeStore.currentlySelectedDiscovery && workForDiscoveries > 0) {
-            techTreeStore.progressWork(techTreeStore.currentlySelectedDiscovery, workForDiscoveries);
+          if (
+            techTreeStore.currentlySelectedDiscovery &&
+            workForDiscoveries > 0
+          ) {
+            techTreeStore.progressWork(
+              techTreeStore.currentlySelectedDiscovery,
+              workForDiscoveries
+            )
           }
         }
         // No automatic work applied in 'startup' phase via tick
@@ -212,55 +241,55 @@ Follow these instructions carefully. Do not deviate without consultation.
 
       function tick() {
         // Still schedule next tick even if paused, but performTick will exit early
-        if (!isRunning.value) return; // Stop if game stopped completely
+        if (!isRunning.value) return // Stop if game stopped completely
 
-        const now = Date.now();
+        const now = Date.now()
         if (lastTickTimestamp.value === null) {
-          lastTickTimestamp.value = now;
+          lastTickTimestamp.value = now
         }
         // Calculate deltaTime even if paused, so it's correct on resume
-        const deltaTimeSeconds = (now - lastTickTimestamp.value) / 1000;
+        const deltaTimeSeconds = (now - lastTickTimestamp.value) / 1000
 
         // Perform game updates ONLY if not paused
         if (!isPaused.value) {
-           performTick(deltaTimeSeconds);
+          performTick(deltaTimeSeconds)
         }
 
-        lastTickTimestamp.value = now; // Update timestamp regardless of pause state
+        lastTickTimestamp.value = now // Update timestamp regardless of pause state
 
         // Schedule the next tick
-        if (timerId.value) clearTimeout(timerId.value); // Clear previous timeout just in case
-        timerId.value = setTimeout(tick, 1000);
+        if (timerId.value) clearTimeout(timerId.value) // Clear previous timeout just in case
+        timerId.value = setTimeout(tick, 1000)
       }
 
       function startGame() {
-        if (isRunning.value) return;
-        console.log("Starting game loop...");
-        currentYear.value = START_YEAR;
-        currentMonthIndex.value = 0;
-        lastTickTimestamp.value = null; // Reset timestamp
-        isPaused.value = false; // Ensure not paused on start
-        isRunning.value = true; // Set master running state
-        tick(); // Start the loop
+        if (isRunning.value) return
+        console.log('Starting game loop...')
+        currentYear.value = START_YEAR
+        currentMonthIndex.value = 0
+        lastTickTimestamp.value = null // Reset timestamp
+        isPaused.value = false // Ensure not paused on start
+        isRunning.value = true // Set master running state
+        tick() // Start the loop
       }
 
       function stopGame() {
-        if (!isRunning.value) return;
-        console.log("Stopping game loop...");
-        isRunning.value = false; // Clear master running state
-        isPaused.value = false; // Ensure not paused when stopped
+        if (!isRunning.value) return
+        console.log('Stopping game loop...')
+        isRunning.value = false // Clear master running state
+        isPaused.value = false // Ensure not paused when stopped
         if (timerId.value) {
-          clearTimeout(timerId.value);
-          timerId.value = null;
+          clearTimeout(timerId.value)
+          timerId.value = null
         }
-        lastTickTimestamp.value = null;
+        lastTickTimestamp.value = null
       }
 
       // New Pause function for temporary stops (popups etc.)
       function pauseGame() {
         if (isRunning.value && !isPaused.value) {
-          console.log("Game paused.");
-          isPaused.value = true;
+          console.log('Game paused.')
+          isPaused.value = true
           // We don't clear the timerId here, tick() keeps running but performTick exits early
         }
       }
@@ -268,28 +297,27 @@ Follow these instructions carefully. Do not deviate without consultation.
       // New Resume function
       function resumeGame() {
         if (isRunning.value && isPaused.value) {
-          console.log("Game resumed.");
-          isPaused.value = false;
+          console.log('Game resumed.')
+          isPaused.value = false
           // Crucially, update lastTickTimestamp to NOW to avoid a large deltaTime jump
-          lastTickTimestamp.value = Date.now();
+          lastTickTimestamp.value = Date.now()
           // The existing timer will call tick() again shortly
         }
       }
 
       function initialize() {
-         console.log("Initializing time store");
-         stopGame(); // Ensure everything is stopped and reset
-         currentYear.value = START_YEAR;
-         currentMonthIndex.value = 0;
-         // isRunning and isPaused are handled by stopGame
+        console.log('Initializing time store')
+        stopGame() // Ensure everything is stopped and reset
+        currentYear.value = START_YEAR
+        currentMonthIndex.value = 0
+        // isRunning and isPaused are handled by stopGame
       }
 
-       // Expose pause/resume for tests
-       if (typeof window !== 'undefined' && window.__timeStore) {
-           window.__timeStore.pauseGame = pauseGame;
-           window.__timeStore.resumeGame = resumeGame;
-       }
-
+      // Expose pause/resume for tests
+      if (typeof window !== 'undefined' && window.__timeStore) {
+        window.__timeStore.pauseGame = pauseGame
+        window.__timeStore.resumeGame = resumeGame
+      }
 
       return {
         // State
@@ -309,8 +337,8 @@ Follow these instructions carefully. Do not deviate without consultation.
         tick, // Keep tick exposed? Maybe not necessary for external calls
         performTick, // Expose for potential manual calls? Use carefully.
         initialize,
-      };
-    });
+      }
+    })
     ```
 
 **Step 4: Enhance UI Store for Popups**
@@ -323,77 +351,76 @@ Follow these instructions carefully. Do not deviate without consultation.
 
     ```typescript
     // src/stores/ui.ts (modifications)
-    import { defineStore } from 'pinia';
-    import { ref } from 'vue';
-    import { useTimeStore } from './time'; // Import time store
+    import { defineStore } from 'pinia'
+    import { ref } from 'vue'
+    import { useTimeStore } from './time' // Import time store
 
     export const useUiStore = defineStore('ui', () => {
       // --- State ---
-      const isQuizModalVisible = ref(false);
-      const quizTechId = ref<string | null>(null);
+      const isQuizModalVisible = ref(false)
+      const quizTechId = ref<string | null>(null)
 
       // New state for generic popups
-      const isPopupVisible = ref(false);
-      const popupTitle = ref<string | null>(null);
-      const popupMessage = ref<string | null>(null);
+      const isPopupVisible = ref(false)
+      const popupTitle = ref<string | null>(null)
+      const popupMessage = ref<string | null>(null)
 
       // --- Actions ---
 
       // Quiz Modal Actions (Updated for Pause/Resume)
       function showQuizModal(techId: string) {
-        const timeStore = useTimeStore();
-        quizTechId.value = techId;
-        isQuizModalVisible.value = true;
-        timeStore.pauseGame(); // PAUSE game for quiz
-        console.log(`Showing quiz modal for tech ${techId}, game paused.`);
+        const timeStore = useTimeStore()
+        quizTechId.value = techId
+        isQuizModalVisible.value = true
+        timeStore.pauseGame() // PAUSE game for quiz
+        console.log(`Showing quiz modal for tech ${techId}, game paused.`)
       }
 
       function hideQuizModal() {
-        const timeStore = useTimeStore();
-        isQuizModalVisible.value = false;
-        quizTechId.value = null;
-        timeStore.resumeGame(); // RESUME game after quiz
-        console.log('Quiz modal hidden, game resumed.');
+        const timeStore = useTimeStore()
+        isQuizModalVisible.value = false
+        quizTechId.value = null
+        timeStore.resumeGame() // RESUME game after quiz
+        console.log('Quiz modal hidden, game resumed.')
       }
 
       // Generic Informational Popup Actions
       function showPopup(title: string, message: string) {
-        const timeStore = useTimeStore();
-        popupTitle.value = title;
-        popupMessage.value = message;
-        isPopupVisible.value = true;
-        timeStore.pauseGame(); // PAUSE game for info popup
-        console.log(`Showing popup "${title}", game paused.`);
+        const timeStore = useTimeStore()
+        popupTitle.value = title
+        popupMessage.value = message
+        isPopupVisible.value = true
+        timeStore.pauseGame() // PAUSE game for info popup
+        console.log(`Showing popup "${title}", game paused.`)
       }
 
       function hidePopup() {
-        const timeStore = useTimeStore();
-        isPopupVisible.value = false;
-        popupTitle.value = null;
-        popupMessage.value = null;
-        timeStore.resumeGame(); // RESUME game after info popup
-        console.log('Popup hidden, game resumed.');
+        const timeStore = useTimeStore()
+        isPopupVisible.value = false
+        popupTitle.value = null
+        popupMessage.value = null
+        timeStore.resumeGame() // RESUME game after info popup
+        console.log('Popup hidden, game resumed.')
       }
 
       // Update global exposure for tests
       if (typeof window !== 'undefined' && window.__uiStore) {
-        window.__uiStore.isPopupVisible = isPopupVisible.value; // Expose value
-        window.__uiStore.popupTitle = popupTitle.value;
-        window.__uiStore.popupMessage = popupMessage.value;
-        window.__uiStore.showPopup = showPopup;
-        window.__uiStore.hidePopup = hidePopup;
+        window.__uiStore.isPopupVisible = isPopupVisible.value // Expose value
+        window.__uiStore.popupTitle = popupTitle.value
+        window.__uiStore.popupMessage = popupMessage.value
+        window.__uiStore.showPopup = showPopup
+        window.__uiStore.hidePopup = hidePopup
         // Watch changes to update global state
-         watch(isPopupVisible, (newValue) => {
-           if (window.__uiStore) window.__uiStore.isPopupVisible = newValue;
-         });
-         watch(popupTitle, (newValue) => {
-           if (window.__uiStore) window.__uiStore.popupTitle = newValue;
-         });
-         watch(popupMessage, (newValue) => {
-           if (window.__uiStore) window.__uiStore.popupMessage = newValue;
-         });
+        watch(isPopupVisible, (newValue) => {
+          if (window.__uiStore) window.__uiStore.isPopupVisible = newValue
+        })
+        watch(popupTitle, (newValue) => {
+          if (window.__uiStore) window.__uiStore.popupTitle = newValue
+        })
+        watch(popupMessage, (newValue) => {
+          if (window.__uiStore) window.__uiStore.popupMessage = newValue
+        })
       }
-
 
       return {
         // State
@@ -407,8 +434,8 @@ Follow these instructions carefully. Do not deviate without consultation.
         hideQuizModal,
         showPopup,
         hidePopup,
-      };
-    });
+      }
+    })
     ```
 
 **Step 5: Create Info Popup Component**
@@ -429,12 +456,12 @@ Follow these instructions carefully. Do not deviate without consultation.
     </template>
 
     <script setup lang="ts">
-    import { useUiStore } from '../stores/ui';
+    import { useUiStore } from '../stores/ui'
 
-    const uiStore = useUiStore();
+    const uiStore = useUiStore()
 
     function closePopup() {
-      uiStore.hidePopup();
+      uiStore.hidePopup()
     }
     </script>
 
@@ -512,17 +539,15 @@ Follow these instructions carefully. Do not deviate without consultation.
     // src/App.vue (additions)
     <script setup lang="ts">
     // ... other imports
-    import InfoPopup from './components/InfoPopup.vue'; // Import InfoPopup
+    import InfoPopup from './components/InfoPopup.vue' // Import InfoPopup
     // ... rest of script setup
     </script>
 
     <template>
       <div id="app">
         <HeaderPanel />
-        <main>
-          </main>
-        <footer>
-          </footer>
+        <main></main>
+        <footer></footer>
 
         <QuizModal />
         <InfoPopup /> {/* Add the InfoPopup component */}
@@ -541,178 +566,184 @@ Follow these instructions carefully. Do not deviate without consultation.
 3.  Add a new state variable `hasCompletedFirstProduct`.
 4.  Modify the `completeWork` action to check for the first product completion, trigger the popup, and set the phase.
 
-    ```typescript
-    // src/stores/techTree.ts (modifications)
-    import { defineStore } from 'pinia';
-    import { ref, reactive, computed } from 'vue';
-    import { findTechById } from './staticData';
-    import { useUiStore } from './ui'; // Import UI Store
-    import { usePhaseStore } from './phase'; // Import Phase Store
+        ```typescript
+        // src/stores/techTree.ts (modifications)
+        import { defineStore } from 'pinia';
+        import { ref, reactive, computed } from 'vue';
+        import { findTechById } from './staticData';
+        import { useUiStore } from './ui'; // Import UI Store
+        import { usePhaseStore } from './phase'; // Import Phase Store
 
-    export const useTechTreeStore = defineStore('techTree', () => {
-      // --- State ---
-      const available = ref(new Set(['discovery1', 'discoveryA']));
-      const locked = ref(new Set(['discovery1', 'discoveryA']));
-      const unlocked_progress = reactive(new Map());
-      const complete = ref(new Set());
-      const currentlySelectedProduct = ref<string | null>(null);
-      const currentlySelectedDiscovery = ref<string | null>(null);
-      const hasCompletedFirstProduct = ref(false); // New state flag
+        export const useTechTreeStore = defineStore('techTree', () => {
+          // --- State ---
+          const available = ref(new Set(['discovery1', 'discoveryA']));
+          const locked = ref(new Set(['discovery1', 'discoveryA']));
+          const unlocked_progress = reactive(new Map());
+          const complete = ref(new Set());
+          const currentlySelectedProduct = ref<string | null>(null);
+          const currentlySelectedDiscovery = ref<string | null>(null);
+          const hasCompletedFirstProduct = ref(false); // New state flag
 
-      // --- Getters (Computed Properties) ---
-      // ... (existing getters remain the same) ...
+          // --- Getters (Computed Properties) ---
+          // ... (existing getters remain the same) ...
 
-      // --- Actions ---
-      // ... (unlock, progressWork - see below, makeAvailable, selectProduct, selectDiscovery remain mostly same) ...
+          // --- Actions ---
+          // ... (unlock, progressWork - see below, makeAvailable, selectProduct, selectDiscovery remain mostly same) ...
 
-      function progressWork(id: string, amount: number) {
-        if (unlocked_progress.has(id)) {
-          const progress = unlocked_progress.get(id);
-          progress.workApplied += amount;
-          console.log(`Applied ${amount.toFixed(2)} work to ${id}. Progress: ${progress.workApplied.toFixed(2)}/${progress.workRequired}`);
+          function progressWork(id: string, amount: number) {
+            if (unlocked_progress.has(id)) {
+              const progress = unlocked_progress.get(id);
+              progress.workApplied += amount;
+              console.log(`Applied ${amount.toFixed(2)} work to ${id}. Progress: ${progress.workApplied.toFixed(2)}/${progress.workRequired}`);
 
-          // Check for completion
-          if (progress.workApplied >= progress.workRequired) {
-            // Ensure we don't over-apply work conceptually, cap it at required
-            progress.workApplied = progress.workRequired;
-            completeWork(id); // Call completion logic
+              // Check for completion
+              if (progress.workApplied >= progress.workRequired) {
+                // Ensure we don't over-apply work conceptually, cap it at required
+                progress.workApplied = progress.workRequired;
+                completeWork(id); // Call completion logic
+              }
+            } else {
+               console.warn(`Attempted to apply work to non-progressing tech: ${id}`);
+            }
           }
-        } else {
-           console.warn(`Attempted to apply work to non-progressing tech: ${id}`);
-        }
-      }
 
-      function completeWork(id: string) {
-        // Ensure it's actually in progress before completing
-        if (!unlocked_progress.has(id)) return;
+          function completeWork(id: string) {
+            // Ensure it's actually in progress before completing
+            if (!unlocked_progress.has(id)) return;
 
-        const tech = findTechById(id);
-        console.log(`Completed: ${tech?.name || id}`);
-        unlocked_progress.delete(id); // Remove from progress tracking
-        complete.value.add(id);     // Add to completed set
-        available.value.delete(id);   // Remove from available list (if it was there)
+            const tech = findTechById(id);
+            console.log(`Completed: ${tech?.name || id}`);
+            unlocked_progress.delete(id); // Remove from progress tracking
+            complete.value.add(id);     // Add to completed set
+            available.value.delete(id);   // Remove from available list (if it was there)
 
-        // Deselect if it was the currently selected item
-        if (tech) {
-          if (tech.type === 'product' && currentlySelectedProduct.value === id) {
+            // Deselect if it was the currently selected item
+            if (tech) {
+              if (tech.type === 'product' && currentlySelectedProduct.value === id) {
+                currentlySelectedProduct.value = null;
+              } else if (tech.type === 'discovery' && currentlySelectedDiscovery.value === id) {
+                currentlySelectedDiscovery.value = null;
+              }
+
+              // Make newly available techs available and locked
+              if (tech.completionMakesAvailable) {
+                tech.completionMakesAvailable.forEach(newItemId => {
+                  makeAvailable(newItemId);
+                });
+              }
+
+              // *** EVENT TRIGGER: First Product Completion ***
+              if (tech.type === 'product' && !hasCompletedFirstProduct.value) {
+                hasCompletedFirstProduct.value = true;
+                console.log("EVENT: First product completed!");
+
+                // Get store instances
+                const uiStore = useUiStore();
+                const phaseStore = usePhaseStore();
+
+                // Show popup
+                uiStore.showPopup(
+                  "Milestone Achieved!",
+                  "Congratulations! You've completed your first product. Your operation is moving from the initial startup phase into a dedicated lab environment. Research efforts will now be automated."
+                );
+
+                // Transition to the 'lab' phase
+                phaseStore.setPhase('lab');
+              }
+            }
+          }
+
+           function makeAvailable(id: string) {
+             const tech = findTechById(id);
+             if (!tech) {
+               console.warn(`Attempted to make unknown tech available: ${id}`);
+               return;
+             }
+             // Prevent adding if already available, in progress, or completed
+             if (!available.value.has(id) && !unlocked_progress.has(id) && !complete.value.has(id)) {
+               available.value.add(id);
+               locked.value.add(id); // Newly available items start locked
+               console.log(`Made available: ${tech.name} (${id})`);
+             }
+           }
+
+
+          function initialize() {
+            console.log("Initializing techTree store");
+            available.value = new Set(['discovery1', 'discoveryA']);
+            locked.value = new Set(['discovery1', 'discoveryA']);
+            unlocked_progress.clear();
+            complete.value = new Set();
             currentlySelectedProduct.value = null;
-          } else if (tech.type === 'discovery' && currentlySelectedDiscovery.value === id) {
             currentlySelectedDiscovery.value = null;
+            hasCompletedFirstProduct.value = false; // Reset flag on init
           }
 
-          // Make newly available techs available and locked
-          if (tech.completionMakesAvailable) {
-            tech.completionMakesAvailable.forEach(newItemId => {
-              makeAvailable(newItemId);
-            });
+          // Expose necessary state/actions for tests
+          if (typeof window !== 'undefined') {
+             window.__techTreeStore = {
+               // ... keep existing exposed items if any ...
+               currentlySelectedProduct: currentlySelectedProduct.value,
+               currentlySelectedDiscovery: currentlySelectedDiscovery.value,
+               progressWork, // Expose for manual work application tests
+               // Add other necessary items for tests
+             };
+             // Watchers to update global state for tests
+             watch(currentlySelectedProduct, (newValue) => {
+               if (window.__techTreeStore) window.__techTreeStore.currentlySelectedProduct = newValue;
+             });
+              watch(currentlySelectedDiscovery, (newValue) => {
+               if (window.__techTreeStore) window.__techTreeStore.currentlySelectedDiscovery = newValue;
+             });
           }
 
-          // *** EVENT TRIGGER: First Product Completion ***
-          if (tech.type === 'product' && !hasCompletedFirstProduct.value) {
-            hasCompletedFirstProduct.value = true;
-            console.log("EVENT: First product completed!");
 
-            // Get store instances
-            const uiStore = useUiStore();
-            const phaseStore = usePhaseStore();
+          return {
+            // State
+            available,
+            locked,
+            unlocked_progress,
+            complete,
+            currentlySelectedProduct,
+            currentlySelectedDiscovery,
+            hasCompletedFirstProduct, // Expose if needed for debugging/testing
+            // Getters
+            totalIncomeRate,
+            availableProducts,
+            availableDiscoveries,
+            completedProducts,
+            completedDiscoveries,
+            isLocked,
+            getProgress,
+            // Actions
+            unlock,
+            progressWork,
+            makeAvailable,
+            completeWork,
+            selectProduct,
+            selectDiscovery,
+            initialize,
+          };
+        });
+        ```
 
-            // Show popup
-            uiStore.showPopup(
-              "Milestone Achieved!",
-              "Congratulations! You've completed your first product. Your operation is moving from the initial startup phase into a dedicated lab environment. Research efforts will now be automated."
-            );
+    **Step 8: Create Founder Panel Component (Startup Phase)**
 
-            // Transition to the 'lab' phase
-            phaseStore.setPhase('lab');
-          }
-        }
-      }
-
-       function makeAvailable(id: string) {
-         const tech = findTechById(id);
-         if (!tech) {
-           console.warn(`Attempted to make unknown tech available: ${id}`);
-           return;
-         }
-         // Prevent adding if already available, in progress, or completed
-         if (!available.value.has(id) && !unlocked_progress.has(id) && !complete.value.has(id)) {
-           available.value.add(id);
-           locked.value.add(id); // Newly available items start locked
-           console.log(`Made available: ${tech.name} (${id})`);
-         }
-       }
-
-
-      function initialize() {
-        console.log("Initializing techTree store");
-        available.value = new Set(['discovery1', 'discoveryA']);
-        locked.value = new Set(['discovery1', 'discoveryA']);
-        unlocked_progress.clear();
-        complete.value = new Set();
-        currentlySelectedProduct.value = null;
-        currentlySelectedDiscovery.value = null;
-        hasCompletedFirstProduct.value = false; // Reset flag on init
-      }
-
-      // Expose necessary state/actions for tests
-      if (typeof window !== 'undefined') {
-         window.__techTreeStore = {
-           // ... keep existing exposed items if any ...
-           currentlySelectedProduct: currentlySelectedProduct.value,
-           currentlySelectedDiscovery: currentlySelectedDiscovery.value,
-           progressWork, // Expose for manual work application tests
-           // Add other necessary items for tests
-         };
-         // Watchers to update global state for tests
-         watch(currentlySelectedProduct, (newValue) => {
-           if (window.__techTreeStore) window.__techTreeStore.currentlySelectedProduct = newValue;
-         });
-          watch(currentlySelectedDiscovery, (newValue) => {
-           if (window.__techTreeStore) window.__techTreeStore.currentlySelectedDiscovery = newValue;
-         });
-      }
-
-
-      return {
-        // State
-        available,
-        locked,
-        unlocked_progress,
-        complete,
-        currentlySelectedProduct,
-        currentlySelectedDiscovery,
-        hasCompletedFirstProduct, // Expose if needed for debugging/testing
-        // Getters
-        totalIncomeRate,
-        availableProducts,
-        availableDiscoveries,
-        completedProducts,
-        completedDiscoveries,
-        isLocked,
-        getProgress,
-        // Actions
-        unlock,
-        progressWork,
-        makeAvailable,
-        completeWork,
-        selectProduct,
-        selectDiscovery,
-        initialize,
-      };
-    });
-    ```
-**Step 8: Create Founder Panel Component (Startup Phase)**
-
-1.  Create a new file `src/components/FounderPanel.vue`.
-2.  Add the following code. Note the comments explaining the limitation of manual work to discoveries in this phase.
+5.  Create a new file `src/components/FounderPanel.vue`.
+6.  Add the following code. Note the comments explaining the limitation of manual work to discoveries in this phase.
 
     ```vue
     <template>
       <div class="founder-panel panel-card">
         <h3>Founder Actions (Startup Phase)</h3>
-        <p>Manually drive initial breakthroughs by applying focused effort to discoveries.</p>
+        <p>
+          Manually drive initial breakthroughs by applying focused effort to
+          discoveries.
+        </p>
         <div v-if="techTreeStore.currentlySelectedDiscovery">
-          <p>Applying effort to: <strong>{{ selectedDiscoveryName }}</strong></p>
+          <p>
+            Applying effort to: <strong>{{ selectedDiscoveryName }}</strong>
+          </p>
           <button @click="doManualResearch" :disabled="!canDoResearch">
             Focus Effort (Applies {{ manualWorkPerClick.toFixed(2) }} Work)
           </button>
@@ -726,58 +757,64 @@ Follow these instructions carefully. Do not deviate without consultation.
         </div>
 
         <div class="manual-work-info">
-          Work per Click ≈ FLOPS<sup>0.7</sup> &times; 1<sup>0.3</sup> (Base Effort)
-          <br/>
+          Work per Click ≈ FLOPS<sup>0.7</sup> &times; 1<sup>0.3</sup> (Base
+          Effort)
+          <br />
           Current FLOPS: {{ resourcesStore.flopsRate }}
         </div>
       </div>
     </template>
 
     <script setup lang="ts">
-    import { computed } from 'vue';
-    import { useTechTreeStore } from '../stores/techTree';
-    import { useResourcesStore } from '../stores/resources';
-    import { findTechById } from '../stores/staticData';
+    import { computed } from 'vue'
+    import { useTechTreeStore } from '../stores/techTree'
+    import { useResourcesStore } from '../stores/resources'
+    import { findTechById } from '../stores/staticData'
 
-    const techTreeStore = useTechTreeStore();
-    const resourcesStore = useResourcesStore();
+    const techTreeStore = useTechTreeStore()
+    const resourcesStore = useResourcesStore()
 
-    const canDoResearch = computed(() => !!techTreeStore.currentlySelectedDiscovery);
+    const canDoResearch = computed(
+      () => !!techTreeStore.currentlySelectedDiscovery
+    )
 
     const selectedDiscoveryName = computed(() => {
-      if (!techTreeStore.currentlySelectedDiscovery) return 'None';
-      const tech = findTechById(techTreeStore.currentlySelectedDiscovery);
-      return tech?.name ?? 'Unknown';
-    });
+      if (!techTreeStore.currentlySelectedDiscovery) return 'None'
+      const tech = findTechById(techTreeStore.currentlySelectedDiscovery)
+      return tech?.name ?? 'Unknown'
+    })
 
     // Calculate how much work one manual click generates
     const manualWorkPerClick = computed(() => {
       // Design Decision: In 'startup', manual effort applies directly to discoveries.
       // We use current FLOPS, but assume a fixed "creativity input" of 1 per click.
-      const flops = resourcesStore.flopsRate;
-      const baseCreativityPerClick = 1; // Represents one unit of focused effort/creativity input.
+      const flops = resourcesStore.flopsRate
+      const baseCreativityPerClick = 1 // Represents one unit of focused effort/creativity input.
       // Formula: Work = FLOPS^0.7 * Creativity^0.3
-      return Math.pow(flops, 0.7) * Math.pow(baseCreativityPerClick, 0.3);
-    });
+      return Math.pow(flops, 0.7) * Math.pow(baseCreativityPerClick, 0.3)
+    })
 
     function doManualResearch() {
       if (!canDoResearch.value || !techTreeStore.currentlySelectedDiscovery) {
-        console.warn("Attempted manual research without a selected discovery.");
-        return;
+        console.warn('Attempted manual research without a selected discovery.')
+        return
       }
 
-      const workAmount = manualWorkPerClick.value;
-      const discoveryId = techTreeStore.currentlySelectedDiscovery;
+      const workAmount = manualWorkPerClick.value
+      const discoveryId = techTreeStore.currentlySelectedDiscovery
 
-      console.log(`Applying ${workAmount.toFixed(2)} manual work to ${discoveryId}`);
-      techTreeStore.progressWork(discoveryId, workAmount);
+      console.log(
+        `Applying ${workAmount.toFixed(2)} manual work to ${discoveryId}`
+      )
+      techTreeStore.progressWork(discoveryId, workAmount)
 
       // Optional: Add visual feedback here (e.g., button flash)
     }
     </script>
 
     <style scoped>
-    .panel-card { /* Use a consistent card style */
+    .panel-card {
+      /* Use a consistent card style */
       background-color: #fff;
       padding: 1rem;
       border-radius: 8px;
@@ -817,7 +854,7 @@ Follow these instructions carefully. Do not deviate without consultation.
     }
 
     button:hover:not(:disabled) {
-       background-color: #3aa876;
+      background-color: #3aa876;
     }
 
     .error-message {
@@ -828,9 +865,9 @@ Follow these instructions carefully. Do not deviate without consultation.
     }
 
     .info-message {
-       color: var(--muted-text, #666);
-       font-style: italic;
-       text-align: center;
+      color: var(--muted-text, #666);
+      font-style: italic;
+      text-align: center;
     }
 
     .manual-work-info {
@@ -851,14 +888,14 @@ Follow these instructions carefully. Do not deviate without consultation.
 2.  Import `usePhaseStore`.
 3.  Import the new `FounderPanel` component.
 4.  Use `v-if` directives to show `FounderPanel` in the 'startup' phase and `ResearchersPanel` + `WorkAllocatorPanel` in the 'lab' phase.
-5.  **Layout Handling:** Choose *one* of the following CSS approaches for handling the layout changes between phases:
+5.  **Layout Handling:** Choose _one_ of the following CSS approaches for handling the layout changes between phases:
 
-    * **Option A (Simpler - Recommended): Using Conditional CSS Classes**
-        * Add a computed property for the phase class.
-        * Bind this class to the `.datacentre-content` div.
-        * Define CSS rules targeting `.startup-layout` and `.lab-layout`.
-    * **Option B (More Complex - Advanced): Using Direct Grid Area Manipulation**
-        * Relies more heavily on the structure within the `<template>` and specific CSS grid area names/rules, potentially using `:has()` if browser support is sufficient/acceptable.
+    - **Option A (Simpler - Recommended): Using Conditional CSS Classes**
+      - Add a computed property for the phase class.
+      - Bind this class to the `.datacentre-content` div.
+      - Define CSS rules targeting `.startup-layout` and `.lab-layout`.
+    - **Option B (More Complex - Advanced): Using Direct Grid Area Manipulation**
+      - Relies more heavily on the structure within the `<template>` and specific CSS grid area names/rules, potentially using `:has()` if browser support is sufficient/acceptable.
 
 6.  Apply the chosen layout approach (Option A shown below is recommended):
 
@@ -867,40 +904,39 @@ Follow these instructions carefully. Do not deviate without consultation.
       <div class="datacentre-panel">
         <h2>Datacentre</h2>
         <div class="datacentre-content" :class="layoutClass">
-
           <template v-if="phaseStore.currentPhase === 'startup'">
-             <FounderPanel class="grid-founder" />
-             <HardwarePanel class="grid-hardware" />
-             <WorkPanel class="grid-work" />
-             </template>
+            <FounderPanel class="grid-founder" />
+            <HardwarePanel class="grid-hardware" />
+            <WorkPanel class="grid-work" />
+          </template>
 
           <template v-else-if="phaseStore.currentPhase === 'lab'">
-             <ResearchersPanel class="grid-researchers" />
-             <HardwarePanel class="grid-hardware" />
-             <WorkPanel class="grid-work" />
-             <WorkAllocatorPanel class="grid-allocator" />
+            <ResearchersPanel class="grid-researchers" />
+            <HardwarePanel class="grid-hardware" />
+            <WorkPanel class="grid-work" />
+            <WorkAllocatorPanel class="grid-allocator" />
           </template>
-          </div>
+        </div>
       </div>
     </template>
 
     <script setup lang="ts">
-    import { computed } from 'vue'; // Import computed
-    import { usePhaseStore } from '../stores/phase'; // Import Phase Store
+    import { computed } from 'vue' // Import computed
+    import { usePhaseStore } from '../stores/phase' // Import Phase Store
 
     // Import all possible panels
-    import FounderPanel from './FounderPanel.vue';
-    import ResearchersPanel from './ResearchersPanel.vue';
-    import HardwarePanel from './HardwarePanel.vue';
-    import WorkPanel from './WorkPanel.vue';
-    import WorkAllocatorPanel from './WorkAllocatorPanel.vue';
+    import FounderPanel from './FounderPanel.vue'
+    import ResearchersPanel from './ResearchersPanel.vue'
+    import HardwarePanel from './HardwarePanel.vue'
+    import WorkPanel from './WorkPanel.vue'
+    import WorkAllocatorPanel from './WorkAllocatorPanel.vue'
 
-    const phaseStore = usePhaseStore();
+    const phaseStore = usePhaseStore()
 
     // Computed property for layout class (Used with Option A CSS)
     const layoutClass = computed(() => {
-      return `${phaseStore.currentPhase}-layout`; // e.g., 'startup-layout' or 'lab-layout'
-    });
+      return `${phaseStore.currentPhase}-layout` // e.g., 'startup-layout' or 'lab-layout'
+    })
     </script>
 
     <style scoped>
@@ -928,26 +964,40 @@ Follow these instructions carefully. Do not deviate without consultation.
     .datacentre-content.lab-layout {
       grid-template-columns: 1fr 1fr;
       grid-template-areas:
-        "researchers hardware"
-        "work work"
-        "allocator allocator";
+        'researchers hardware'
+        'work work'
+        'allocator allocator';
     }
-    .lab-layout .grid-researchers { grid-area: researchers; }
-    .lab-layout .grid-hardware { grid-area: hardware; }
-    .lab-layout .grid-work { grid-area: work; }
-    .lab-layout .grid-allocator { grid-area: allocator; }
+    .lab-layout .grid-researchers {
+      grid-area: researchers;
+    }
+    .lab-layout .grid-hardware {
+      grid-area: hardware;
+    }
+    .lab-layout .grid-work {
+      grid-area: work;
+    }
+    .lab-layout .grid-allocator {
+      grid-area: allocator;
+    }
 
     /* Startup Phase Layout */
     .datacentre-content.startup-layout {
-       grid-template-columns: 1fr; /* Single column */
-       grid-template-areas:
-         "founder"
-         "hardware"
-         "work";
+      grid-template-columns: 1fr; /* Single column */
+      grid-template-areas:
+        'founder'
+        'hardware'
+        'work';
     }
-    .startup-layout .grid-founder { grid-area: founder; }
-    .startup-layout .grid-hardware { grid-area: hardware; }
-    .startup-layout .grid-work { grid-area: work; }
+    .startup-layout .grid-founder {
+      grid-area: founder;
+    }
+    .startup-layout .grid-hardware {
+      grid-area: hardware;
+    }
+    .startup-layout .grid-work {
+      grid-area: work;
+    }
 
     /* --- End Option A CSS --- */
 
@@ -964,7 +1014,6 @@ Follow these instructions carefully. Do not deviate without consultation.
      // Would likely need adjustments based on conditional rendering order.
     */
     /* --- End Option B CSS --- */
-
     </style>
     ```
 
@@ -973,42 +1022,46 @@ Follow these instructions carefully. Do not deviate without consultation.
 Perform the following tests manually, verifying UI elements, console logs, and game state changes (e.g., using browser dev tools to inspect `window.__phaseStore.currentPhase` or `window.__timeStore.isPaused`).
 
 1.  **Initial State & Startup Phase Mechanics:**
-    * [ ] Verify the game starts in the `'startup'` phase.
-    * [ ] Verify the `FounderPanel` is visible in the `DatacentrePanel`.
-    * [ ] Verify `ResearchersPanel` and `WorkAllocatorPanel` are hidden.
-    * [ ] Verify selecting an available Discovery enables the "Focus Effort" button in `FounderPanel`.
-    * [ ] Verify clicking "Focus Effort" applies work *only* to the selected Discovery's progress bar (check UI and console logs).
-    * [ ] Verify game time advances (`HeaderPanel` date changes).
-    * [ ] Verify *no automatic work* is applied via the game tick (tech progress *only* occurs via manual clicks).
-    * [ ] Verify Savings increase if there's base income, but Thoughts likely won't increase much (as automatic `workRate` should be near 0 unless researchers are somehow present).
+
+    - [ ] Verify the game starts in the `'startup'` phase.
+    - [ ] Verify the `FounderPanel` is visible in the `DatacentrePanel`.
+    - [ ] Verify `ResearchersPanel` and `WorkAllocatorPanel` are hidden.
+    - [ ] Verify selecting an available Discovery enables the "Focus Effort" button in `FounderPanel`.
+    - [ ] Verify clicking "Focus Effort" applies work _only_ to the selected Discovery's progress bar (check UI and console logs).
+    - [ ] Verify game time advances (`HeaderPanel` date changes).
+    - [ ] Verify _no automatic work_ is applied via the game tick (tech progress _only_ occurs via manual clicks).
+    - [ ] Verify Savings increase if there's base income, but Thoughts likely won't increase much (as automatic `workRate` should be near 0 unless researchers are somehow present).
 
 2.  **Event Trigger & Phase Transition:**
-    * [ ] Manually complete the *first Discovery that unlocks a Product* (e.g., "Discovery 1" which unlocks "Product 1") using the "Focus Effort" button.
-    * [ ] **On completion of that specific Discovery:**
-        * [ ] Verify a console log indicates the event trigger ("EVENT: First product completed!" or similar, based on the revised trigger name).
-        * [ ] Verify the informational popup appears ("Milestone Achieved!").
-        * [ ] Verify the game time stops advancing (game is paused). Check `window.__timeStore.isPaused` is true.
-    * [ ] **Close the Popup:**
-        * [ ] Verify the popup closes.
-        * [ ] Verify the game time *resumes* advancing. Check `window.__timeStore.isPaused` is false.
-        * [ ] Verify the game phase has transitioned to `'lab'`. Check `window.__phaseStore.currentPhase`.
+
+    - [ ] Manually complete the _first Discovery that unlocks a Product_ (e.g., "Discovery 1" which unlocks "Product 1") using the "Focus Effort" button.
+    - [ ] **On completion of that specific Discovery:**
+      - [ ] Verify a console log indicates the event trigger ("EVENT: First product completed!" or similar, based on the revised trigger name).
+      - [ ] Verify the informational popup appears ("Milestone Achieved!").
+      - [ ] Verify the game time stops advancing (game is paused). Check `window.__timeStore.isPaused` is true.
+    - [ ] **Close the Popup:**
+      - [ ] Verify the popup closes.
+      - [ ] Verify the game time _resumes_ advancing. Check `window.__timeStore.isPaused` is false.
+      - [ ] Verify the game phase has transitioned to `'lab'`. Check `window.__phaseStore.currentPhase`.
 
 3.  **Lab Phase Mechanics:**
-    * [ ] Verify `FounderPanel` is now hidden.
-    * [ ] Verify `ResearchersPanel` and `WorkAllocatorPanel` are now visible.
-    * [ ] Hire a researcher using the `ResearchersPanel`.
-    * [ ] Select an available product or discovery.
-    * [ ] Adjust the `WorkAllocatorPanel` slider.
-    * [ ] Verify work is now applied *automatically* over time via the game tick, according to the allocation, causing progress bars to fill.
-    * [ ] Complete another discovery or product. Verify the phase transition popup *does not* appear again.
+
+    - [ ] Verify `FounderPanel` is now hidden.
+    - [ ] Verify `ResearchersPanel` and `WorkAllocatorPanel` are now visible.
+    - [ ] Hire a researcher using the `ResearchersPanel`.
+    - [ ] Select an available product or discovery.
+    - [ ] Adjust the `WorkAllocatorPanel` slider.
+    - [ ] Verify work is now applied _automatically_ over time via the game tick, according to the allocation, causing progress bars to fill.
+    - [ ] Complete another discovery or product. Verify the phase transition popup _does not_ appear again.
 
 4.  **Pause/Resume Functionality:**
-    * [ ] Open the Quiz modal for any tech item. Verify game time pauses. Close the modal. Verify game time resumes.
-    * *Re-verify (if possible by resetting state)* Trigger the phase transition popup again. Verify game time pauses. Close the popup. Verify game time resumes.
+
+    - [ ] Open the Quiz modal for any tech item. Verify game time pauses. Close the modal. Verify game time resumes.
+    - _Re-verify (if possible by resetting state)_ Trigger the phase transition popup again. Verify game time pauses. Close the popup. Verify game time resumes.
 
 5.  **Store State & Initialization:**
-    * [ ] Use browser dev tools to inspect the exposed window variables (`window.__phaseStore`, `window.__timeStore`, `window.__techTreeStore`) to confirm state changes during testing.
-    * [ ] Test any "Initialize" or "Reset" functionality if available (like in `DebugPanel`) to ensure the `hasCompletedFirstProductUnlockingDiscovery` flag and `currentPhase` reset correctly.
+    - [ ] Use browser dev tools to inspect the exposed window variables (`window.__phaseStore`, `window.__timeStore`, `window.__techTreeStore`) to confirm state changes during testing.
+    - [ ] Test any "Initialize" or "Reset" functionality if available (like in `DebugPanel`) to ensure the `hasCompletedFirstProductUnlockingDiscovery` flag and `currentPhase` reset correctly.
 
 ## Implementation Checklist
 
@@ -1017,7 +1070,7 @@ Perform the following tests manually, verifying UI elements, console logs, and g
 - [ ] Updated `src/main.ts` to initialize `usePhaseStore` and expose it globally for tests.
 - [ ] Added `isPaused` state, `pauseGame`, and `resumeGame` actions to `src/stores/time.ts`.
 - [ ] Modified `startGame`, `stopGame`, and `tick` in `src/stores/time.ts` to respect `isPaused`.
-- [ ] Modified `performTick` in `src/stores/time.ts` to *not* apply automatic work during the `'startup'` phase.
+- [ ] Modified `performTick` in `src/stores/time.ts` to _not_ apply automatic work during the `'startup'` phase.
 - [ ] Added `isPopupVisible`, `popupTitle`, `popupMessage` state to `src/stores/ui.ts`.
 - [ ] Added `showPopup` and `hidePopup` actions to `src/stores/ui.ts`, ensuring they call `timeStore.pauseGame`/`resumeGame`.
 - [ ] Updated `showQuizModal` and `hideQuizModal` in `src/stores/ui.ts` to use `pauseGame`/`resumeGame`.
@@ -1026,7 +1079,7 @@ Perform the following tests manually, verifying UI elements, console logs, and g
 - [ ] Added `hasCompletedFirstProductUnlockingDiscovery` state flag to `src/stores/techTree.ts`.
 - [ ] Modified `completeWork` action in `src/stores/techTree.ts` to detect the completion of the first discovery unlocking a product, trigger `uiStore.showPopup`, and call `phaseStore.setPhase('lab')`.
 - [ ] Reset `hasCompletedFirstProductUnlockingDiscovery` flag in `techTreeStore.initialize`.
-- [ ] Created `src/components/FounderPanel.vue` with a "Focus Effort" button applying manual work to the selected *discovery*, including explanatory comments.
+- [ ] Created `src/components/FounderPanel.vue` with a "Focus Effort" button applying manual work to the selected _discovery_, including explanatory comments.
 - [ ] Imported `usePhaseStore` and `FounderPanel` into `src/components/DatacentrePanel.vue`.
 - [ ] Implemented conditional rendering in `DatacentrePanel.vue` using `v-if` based on `phaseStore.currentPhase` to show `FounderPanel` ('startup') or `ResearchersPanel`/`WorkAllocatorPanel` ('lab'), applying a chosen CSS layout strategy.
 - [ ] Performed manual testing following the **revised structure and steps outlined in the updated Step 10**, verifying startup mechanics, event trigger, popup, pause/resume, phase transition, and lab mechanics.
