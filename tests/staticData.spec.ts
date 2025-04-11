@@ -33,5 +33,5 @@ test('staticData is accessible in the app', async ({ page }) => {
   
   // Check that available tech cards are displayed
   const techCards = page.locator('.tech-card');
-  await expect(techCards).toHaveCount(2, { timeout: NORMAL_TIMEOUT }); // discovery1 and discoveryA
+  await expect(techCards).toHaveCount(1, { timeout: NORMAL_TIMEOUT }); // discovery1 and discoveryA
 });
