@@ -5,9 +5,11 @@
       "type": "product",
       "name": "Product 1",
       "description": "Placeholder",
-      "workRequired": 5,
+      "workRequired": 20,
       "incomeGenerated": 500,
-      "requiredDiscoveries": ["discovery1"],
+      "requiredDiscoveries": [
+        "discovery1"
+      ],
       "completionMakesAvailable": [],
       "quiz": {
         "question": "quiz question for Product 1",
@@ -25,9 +27,11 @@
       "type": "product",
       "name": "Product 2",
       "description": "Placeholder",
-      "workRequired": 10,
+      "workRequired": 1350,
       "incomeGenerated": 1000,
-      "requiredDiscoveries": ["discovery2"],
+      "requiredDiscoveries": [
+        "discovery2"
+      ],
       "completionMakesAvailable": [],
       "quiz": {
         "question": "quiz question for Product 2",
@@ -45,9 +49,11 @@
       "type": "product",
       "name": "Product A",
       "description": "Placeholder",
-      "workRequired": 15,
+      "workRequired": 7500,
       "incomeGenerated": 1500,
-      "requiredDiscoveries": ["discoveryA"],
+      "requiredDiscoveries": [
+        "discoveryA"
+      ],
       "completionMakesAvailable": [],
       "quiz": {
         "question": "quiz question for Product A",
@@ -65,9 +71,11 @@
       "type": "product",
       "name": "Product B",
       "description": "Placeholder",
-      "workRequired": 20,
+      "workRequired": 28500,
       "incomeGenerated": 2000,
-      "requiredDiscoveries": ["discoveryB"],
+      "requiredDiscoveries": [
+        "discoveryA"
+      ],
       "completionMakesAvailable": [],
       "quiz": {
         "question": "quiz question for Product B",
@@ -85,12 +93,15 @@
     {
       "id": "discovery1",
       "type": "discovery",
-      "name": "Discovery 1",
+      "name": "First Discovery",
       "description": "Placeholder",
-      "workRequired": 5,
+      "workRequired": 15,
       "creativity": 10,
       "requiredDiscoveries": [],
-      "completionMakesAvailable": ["discovery2", "product1"],
+      "completionMakesAvailable": [
+        "discovery2",
+        "product1"
+      ],
       "quiz": {
         "question": "quiz question for Discovery 1",
         "options": [
@@ -107,10 +118,16 @@
       "type": "discovery",
       "name": "Discovery 2",
       "description": "Placeholder",
-      "workRequired": 10,
+      "workRequired": 800,
       "creativity": 20,
-      "requiredDiscoveries": ["discovery1"],
-      "completionMakesAvailable": ["product2"],
+      "requiredDiscoveries": [
+        "discovery1"
+      ],
+      "completionMakesAvailable": [
+        "discoveryA",
+        "product1",
+        "product2"
+      ],
       "quiz": {
         "question": "quiz question for Discovery 2",
         "options": [
@@ -127,10 +144,17 @@
       "type": "discovery",
       "name": "Discovery A",
       "description": "Placeholder",
-      "workRequired": 15,
+      "workRequired": 4550,
       "creativity": 30,
-      "requiredDiscoveries": [],
-      "completionMakesAvailable": ["discoveryB", "productA"],
+      "requiredDiscoveries": [
+        "discovery2"
+      ],
+      "completionMakesAvailable": [
+        "discoveryB",
+        "productA",
+        "productB",
+        "discoveryC"
+      ],
       "quiz": {
         "question": "quiz question for Discovery A",
         "options": [
@@ -147,10 +171,34 @@
       "type": "discovery",
       "name": "Discovery B",
       "description": "Placeholder",
-      "workRequired": 20,
+      "workRequired": 18000,
       "creativity": 40,
-      "requiredDiscoveries": ["discoveryA"],
-      "completionMakesAvailable": ["productB"],
+      "requiredDiscoveries": [
+        "discoveryA"
+      ],
+      "completionMakesAvailable": [],
+      "quiz": {
+        "question": "quiz question for Discovery B",
+        "options": [
+          "incorrect",
+          "incorrect",
+          "correct",
+          "incorrect"
+        ],
+        "correctOptionIndex": 2
+      }
+    },
+    {
+      "id": "discoveryC",
+      "type": "discovery",
+      "name": "Discovery C",
+      "description": "Placeholder",
+      "workRequired": 90000,
+      "creativity": 40,
+      "requiredDiscoveries": [
+        "discoveryA"
+      ],
+      "completionMakesAvailable": [],
       "quiz": {
         "question": "quiz question for Discovery B",
         "options": [
@@ -164,4 +212,3 @@
     }
   ]
 }
-

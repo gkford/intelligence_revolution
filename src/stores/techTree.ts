@@ -1,14 +1,21 @@
 import { defineStore } from 'pinia';
 import { ref, reactive, computed, watch } from 'vue';
-import { findTechById } from './staticData';
+import { findTechById, allTech } from './staticData';
 import { useUiStore } from './ui'; // Import UI Store
 import { usePhaseStore } from './phase'; // Import Phase Store
 
 export const useTechTreeStore = defineStore('techTree', () => {
   // --- State ---
   // Using Sets for efficient add/delete/has checks for IDs
-  const available = ref(new Set(['discovery1', 'discoveryA'])); // Initial available techs
-  const locked = ref(new Set(['discovery1', 'discoveryA']));    // Initial locked techs
+  const getInitialTechs = () => {
+    const techTree = allTech;
+    return techTree.value.discoveries
+      .filter(tech => tech.requiredDiscoveries.length === 0)
+      .map(tech => tech.id);
+  };
+  const available = ref(new Set(getInitialTechs())); // Initial available techs
+  const locked = ref(new Set(getInitialTechs()));    // Initial locked techs
+
   // Using a Map for unlocked items to easily access progress by ID
   const unlocked_progress = reactive(new Map()); // Map<idString, { workRequired: number, workApplied: number }>
   const complete = ref(new Set());
